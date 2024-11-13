@@ -2,7 +2,7 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 
-dotenv.config(); // Charge les variables d'environnement
+dotenv.config();
 
 exports.register = async (req, res) => {
     try {
@@ -28,7 +28,7 @@ exports.login = async (req, res) => {
         }
         const token = jwt.sign(
             { id: user._id, username: user.username },
-            process.env.JWT_SECRET,
+            process.env.JWT_SECRET, // Utilisation de la clé secrète depuis les variables d'environnement
             { expiresIn: '1h' }
         );
         res.json({ token });
@@ -38,5 +38,6 @@ exports.login = async (req, res) => {
 };
 
 exports.logout = (req, res) => {
+    // Comme JWT est stateless, la déconnexion peut être gérée côté client en supprimant le token
     res.json({ message: 'Déconnexion réussie' });
 };
