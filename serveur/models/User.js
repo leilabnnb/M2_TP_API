@@ -11,14 +11,11 @@ const userSchema = new Schema({
 
 // Hashage du mot de passe avant sauvegarde
 userSchema.pre('save', async function (next) {
-    try {
+    if (this.isModified('password')) { // Ne hache que si le mot de passe est modifié
         const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(this.password, salt);
-        this.password = hashedPassword;
-        next();
-    } catch (error) {
-        next(error);
+        this.password = await bcrypt.hash(this.password, salt);
     }
+    next();
 });
 
 // Méthode pour vérifier le mot de passe lors de la connexion

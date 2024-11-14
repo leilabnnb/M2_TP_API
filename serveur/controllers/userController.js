@@ -1,43 +1,61 @@
 const User = require('../models/User');
+const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const dotenv = require('dotenv');
-
-dotenv.config();
 
 exports.register = async (req, res) => {
     try {
         const { username, password, isAgent } = req.body;
-        const user = new User({ username, password, isAgent });
-        await user.save();
+
+        if (!username || !password) {
+            return res.status(400).json({ message: 'Nom d’utilisateur et mot de passe requis' });
+        }
+
+        // Vérifier si l'utilisateur existe déjà
+        const existingUser = await User.findOne({ username });
+        if (existingUser) {
+            return res.status(409).json({ message: 'Utilisateur déjà existant' });
+        }
+
+        // Hachage du mot de passe
+        //const hashedPassword = await bcrypt.hash(password, 10);
+        const newUser = new User({ username, password: password, isAgent });
+
+        await newUser.save();
         res.status(201).json({ message: 'Utilisateur enregistré avec succès' });
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        res.status(500).json({ error: error.message });
     }
 };
 
 exports.login = async (req, res) => {
     try {
         const { username, password } = req.body;
+
+        console.log('Données reçues pour la connexion:', { username, password });
+
         const user = await User.findOne({ username });
         if (!user) {
-            return res.status(401).json({ message: 'Authentification échouée' });
+            return res.status(404).json({ message: 'Utilisateur non trouvé' });
         }
-        const isMatch = await user.isValidPassword(password);
+
+        console.log('Utilisateur trouvé:', user);
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        console.log('password:', password)
+        console.log('user.password' , user.password)
+        console.log('résulta de bcrypt.compare:', isMatch);
         if (!isMatch) {
-            return res.status(401).json({ message: 'Authentification échouée' });
+            return res.status(400).json({ message: 'Mot de passe incorrect' });
         }
-        const token = jwt.sign(
-            { id: user._id, username: user.username },
-            process.env.JWT_SECRET, // Utilisation de la clé secrète depuis les variables d'environnement
-            { expiresIn: '1h' }
-        );
-        res.json({ token });
+
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        res.status(200).json({ token });
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        console.error('Erreur lors de la connexion:', error);
+        res.status(500).json({ error: error.message });
     }
 };
 
 exports.logout = (req, res) => {
-    // Comme JWT est stateless, la déconnexion peut être gérée côté client en supprimant le token
-    res.json({ message: 'Déconnexion réussie' });
+    res.status(200).json({ message: 'Déconnexion réussie' });
 };
