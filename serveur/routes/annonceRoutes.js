@@ -7,17 +7,23 @@ const upload = require('../middleware/upload'); // Import du middleware Multer
 // Middleware pour protéger les routes
 const requireAuth = passport.authenticate('jwt', { session: false });
 
+
+// Routes accessibles par tout le monde
+
 // Routes principales
 router.get('/', annonceController.getAnnonces);
+// Route pour obtenir une annonce par ID
+router.get('/:id',annonceController.getAnnonceById);
+
+
+
+// Routes protégées
 router.post(
     '/',
     requireAuth,
     upload.fields([{ name: 'photos', maxCount: 10 }]), // Configuration Multer pour les photos
     annonceController.addAnnonceWithPhotos
 );
-
-// Route pour obtenir une annonce par ID
-router.get('/:id', requireAuth, annonceController.getAnnonceById);
 
 // Route pour mettre à jour une annonce
 router.put(

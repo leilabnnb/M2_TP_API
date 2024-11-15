@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const BlacklistedToken = require('../models/BlacklistedToken');
 
 exports.register = async (req, res) => {
     try {
@@ -31,19 +32,15 @@ exports.login = async (req, res) => {
     try {
         const { username, password } = req.body;
 
-        console.log('Données reçues pour la connexion:', { username, password });
 
         const user = await User.findOne({ username });
         if (!user) {
             return res.status(404).json({ message: 'Utilisateur non trouvé' });
         }
 
-        console.log('Utilisateur trouvé:', user);
 
         const isMatch = await bcrypt.compare(password, user.password);
-        console.log('password:', password)
-        console.log('user.password' , user.password)
-        console.log('résulta de bcrypt.compare:', isMatch);
+
         if (!isMatch) {
             return res.status(400).json({ message: 'Mot de passe incorrect' });
         }
@@ -56,6 +53,16 @@ exports.login = async (req, res) => {
     }
 };
 
-exports.logout = (req, res) => {
-    res.status(200).json({ message: 'Déconnexion réussie' });
+exports.logout = async (req, res) => {
+    try {
+        const authHeader = req.headers.authorization;
+        if (authHeader) {
+            const token = authHeader.split(' ')[1];
+            await BlacklistedToken.create({token});
+            return res.status(200).json({message: 'Déconnexion réussie'});
+        }
+        res.status(400).json({message: 'Token manquant'});
+    } catch (error) {
+        res.status(500).json({error: error.message});
+    }
 };

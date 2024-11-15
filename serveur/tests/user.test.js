@@ -1,5 +1,6 @@
 const request = require('supertest');
 const app = require('../app');
+const mongoose = require('mongoose');
 
 describe('User API', () => {
     let token;
@@ -13,7 +14,10 @@ describe('User API', () => {
     });
 
     afterAll((done) => {
-        server.close(done);
+        mongoose.connection.close();
+
+        server.close();
+        done();
     });
 
     it('should register a new user', async () => {

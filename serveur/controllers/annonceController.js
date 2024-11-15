@@ -8,14 +8,8 @@ const path = require('path');
  */
 exports.getAnnonces = async (req, res) => {
     try {
-        const user = req.user;
-        let annonces;
 
-        if (user && user.isAgent) {
-            annonces = await Annonce.find({ userName: user.username });
-        } else {
-            annonces = await Annonce.find({ publicationStatus: 'Publiée' });
-        }
+        const annonces = await Annonce.find({ publicationStatus: 'Publiée' });
 
         res.json(annonces);
     } catch (error) {
@@ -65,7 +59,6 @@ exports.addAnnonceWithPhotos = async (req, res) => {
 exports.getAnnonceById = async (req, res) => {
     try {
         const { id } = req.params;
-        const user = req.user;
 
         const annonce = await Annonce.findById(id);
 
@@ -74,7 +67,7 @@ exports.getAnnonceById = async (req, res) => {
         }
 
         // Vérification des droits d'accès
-        if ((user && user.username !== annonce.userName) && annonce.publicationStatus !== 'Publiée') {
+        if (annonce.publicationStatus !== 'Publiée') {
             return res.status(403).json({ message: 'Accès interdit' });
         }
 
@@ -99,7 +92,7 @@ exports.updateAnnonce = async (req, res) => {
             return res.status(404).json({ message: 'Annonce non trouvée' });
         }
 
-        if (user.username !== annonce.userName) {
+        if (!user.isAgent) {
             return res.status(403).json({ message: 'Utilisateur non autorisé' });
         }
 
@@ -139,7 +132,7 @@ exports.deleteAnnonce = async (req, res) => {
             return res.status(404).json({ message: 'Annonce non trouvée' });
         }
 
-        if (user.username !== annonce.userName) {
+        if (!user.isAgent) {
             return res.status(403).json({ message: 'Utilisateur non autorisé' });
         }
 
@@ -235,7 +228,7 @@ exports.answerQuestion = async (req, res) => {
             return res.status(404).json({ message: 'Annonce non trouvée' });
         }
 
-        if (user.username !== annonce.userName) {
+        if (!user.isAgent) {
             return res.status(403).json({ message: 'Utilisateur non autorisé' });
         }
 
