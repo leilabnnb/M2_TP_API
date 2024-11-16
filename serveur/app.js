@@ -12,6 +12,10 @@ const fs = require('fs');
 const path = require('path');
 const yaml = require('js-yaml');
 
+const { createHandler } = require('graphql-http/lib/use/express');
+const schema = require('./graphql/schema');
+
+
 const app = express();
 
 let swaggerDocument;
@@ -42,5 +46,8 @@ require('./config/passport')(passport);
 // Routes
 app.use('/user', userRoutes);
 app.use('/annonce', annonceRoutes, requireAuth, checkBlacklist);
+
+app.all('/graphql', createHandler({ schema }));
+app.use(express.urlencoded({ extended: true }));
 
 module.exports = app;
