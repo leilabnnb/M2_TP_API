@@ -48,6 +48,7 @@ exports.addAnnonceWithPhotos = async (req, res) => {
 
         const savedAnnonce = await newAnnonce.save();
         res.status(201).json(savedAnnonce);
+        console.log("Annonce ajoutée avec succès");
     } catch (error) {
         res.status(400).json({ error: error.message });
     }

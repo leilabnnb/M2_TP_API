@@ -43,14 +43,12 @@ afterAll(async () => {
 
 describe('Annonce API', () => {
 
-    it('should get the list of annonces (Public routes)', async () => {
-        const res = await request(app).get('/annonce');
-        expect(res.statusCode).toEqual(200);
-        expect(Array.isArray(res.body)).toBe(true);
-        expect(res.body.length).toBeGreaterThan(0);
-    });
+   
 
     it('should allow agent to add a new annonce', async () => {
+        
+        const photoPath = path.join(process.cwd(), 'tests', 'test_photo.jpg');
+        console.log('Photo path:', photoPath);
         const res = await request(app)
             .post('/annonce')
             .set('Authorization', `Bearer ${agentToken}`)
@@ -61,7 +59,7 @@ describe('Annonce API', () => {
             .field('description', 'Description de la maison')
             .field('price', '200000')
             .field('availabilityDate', '2024-12-31T00:00:00Z')
-            .attach('photos', path.resolve(__dirname, 'test_photo.jpg'));
+            .attach('photos', photoPath);
 
         expect(res.statusCode).toEqual(201);
         expect(res.body).toHaveProperty('title', 'Test Maison');
@@ -74,6 +72,13 @@ describe('Annonce API', () => {
         console.log('Response body:', res.body);
         expect(res.statusCode).toEqual(200);
         expect(res.body).toHaveProperty('_id', annonceId);
+    });
+
+     it('should get the list of annonces (Public routes)', async () => {
+        const res = await request(app).get('/annonce');
+        expect(res.statusCode).toEqual(200);
+        expect(Array.isArray(res.body)).toBe(true);
+        expect(res.body.length).toBeGreaterThan(0);
     });
 
     it('should allow authenticated user to ask a question', async () => {
