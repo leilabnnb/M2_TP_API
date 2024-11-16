@@ -1,0 +1,578 @@
+openapi: 3.0.3
+info:
+  title: API de Gestion des Annonces Immobilières
+  termsOfService: http://swagger.io/terms/
+  contact:
+    email: apiteam@swagger.io
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.11
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+- url: http://localhost:3000
+tags:
+- name: annonce
+- name: user
+paths:
+  /annonce:
+    get:
+      tags:
+      - annonce
+      summary: Obtenir la liste des annonces
+      description: Récupère la liste des annonces
+      operationId: getAnnonces
+      responses:
+        "200":
+          description: Succès. Liste des annonces récupérée avec succès.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/annoncesList'
+        "400":
+          description: Requête invalide. Veuillez vérifier vos paramètres de requête.
+        "401":
+          description: Authentification requise.
+        "403":
+          description: Accès interdit. L'utilisateur n'est pas autorisé à accéder
+            à cette ressource.
+        "404":
+          description: Non trouvé. Aucune annonce n'a été trouvée.
+        "500":
+          description: Erreur serveur interne. Veuillez réessayer plus tard.
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: Annonce
+    post:
+      tags:
+      - annonce
+      summary: Ajouter une nouvelle annonce
+      description: Ajouter une nouvelle annonce à la liste avec téléchargement de
+        photos
+      operationId: addAnnonceWithPhotos
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/annonce'
+        required: true
+      responses:
+        "200":
+          description: Succès. L'annonce a été ajoutée avec succès.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/annonce'
+        "400":
+          description: Requête invalide. Veuillez vérifier vos paramètres de requête.
+        "401":
+          description: Authentification requise.
+        "403":
+          description: Accès interdit. L'utilisateur n'est pas autorisé à effectuer
+            cette action.
+        "500":
+          description: Erreur serveur interne. Veuillez réessayer plus tard.
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: Annonce
+  /annonce/{id}/photos:
+    post:
+      tags:
+      - annonce
+      summary: Ajouter des photos à une annonce
+      description: Télécharger des photos sur une annonce existante
+      operationId: addPhotosToAnnonce
+      parameters:
+      - name: id
+        in: path
+        description: ID de l'annonce à laquelle les photos seront ajoutées
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/id_photos_body'
+      responses:
+        "200":
+          description: Succès. Les photos ont été ajoutées avec succès.
+        "400":
+          description: Requête invalide. Veuillez vérifier vos paramètres de requête.
+        "401":
+          description: Authentification requise.
+        "403":
+          description: Accès interdit. L'utilisateur n'est pas autorisé à effectuer
+            cette action.
+        "404":
+          description: Annonce non trouvée.
+        "500":
+          description: Internal server error. Please try again later.
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: Annonce
+  /annonce/{id}:
+    get:
+      tags:
+      - annonce
+      summary: Obtenir les détails d'une annonce
+      description: Récupère les détails d'une annonce
+      operationId: getAnnonceById
+      parameters:
+      - name: id
+        in: path
+        description: ID de l'annonce à récupérer
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Succès. Détails de l'annonce récupérés avec succès.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/annonce'
+        "400":
+          description: Requête invalide. Veuillez vérifier vos paramètres de requête.
+        "401":
+          description: Authentification requise.
+        "403":
+          description: Accès interdit. L'utilisateur n'est pas autorisé à accéder
+            à cette ressource.
+        "404":
+          description: Non trouvé. L'annonce avec l'ID spécifié n'a pas été trouvée
+            ou n'est pas disponible.
+        "500":
+          description: Erreur serveur interne. Veuillez réessayer plus tard.
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: Annonce
+    put:
+      tags:
+      - annonce
+      summary: Mettre à jour une annonce
+      description: Met à jour une annonce.
+      operationId: updateAnnonce
+      parameters:
+      - name: id
+        in: path
+        description: ID de l'annonce à mettre à jour
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        description: Annonce à mettre à jour
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/annonce'
+        required: true
+      responses:
+        "200":
+          description: Succès. Renvoie les détails de l'annonce mise à jour.
+        "400":
+          description: Requête invalide. Veuillez vérifier vos paramètres de requête.
+        "401":
+          description: Authentification requise.
+        "403":
+          description: Accès interdit. L'utilisateur n'est pas autorisé à accéder
+            à cette ressource.
+        "404":
+          description: Non trouvé. Aucune annonce n'a été trouvée.
+        "500":
+          description: Erreur serveur interne. Veuillez réessayer plus tard.
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: Annonce
+    delete:
+      tags:
+      - annonce
+      summary: Supprimer une annonce
+      description: Supprime une annonce
+      operationId: deleteAnnonce
+      parameters:
+      - name: id
+        in: path
+        description: ID de l'annonce à supprimer
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Succès. L'annonce a été supprimée avec succès.
+        "400":
+          description: Requête invalide. Veuillez vérifier vos paramètres de requête.
+        "401":
+          description: Authentification requise.
+        "403":
+          description: Accès interdit. L'utilisateur n'est pas autorisé à accéder
+            à cette ressource.
+        "404":
+          description: Non trouvé. Aucune annonce n'a été trouvée.
+        "500":
+          description: Erreur serveur interne. Veuillez réessayer plus tard.
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: Annonce
+  /annonce/{id}/ask:
+    put:
+      tags:
+      - annonce
+      summary: Poser une question sur une annonce
+      description: Pose une question sur une annonce
+      operationId: askQuestion
+      parameters:
+      - name: id
+        in: path
+        description: ID de l'annonce sur laquelle poser la question
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        description: Question à poser sur l'annonce
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/askQuestion'
+        required: true
+      responses:
+        "200":
+          description: Succès. La question a été posée avec succès.
+        "400":
+          description: Requête invalide. Veuillez vérifier vos paramètres de requête.
+        "401":
+          description: Authentification requise.
+        "403":
+          description: Accès interdit. L'utilisateur n'est pas autorisé à accéder
+            à cette ressource.
+        "404":
+          description: Non trouvé. Aucune annonce n'a été trouvée.
+        "500":
+          description: Erreur serveur interne. Veuillez réessayer plus tard.
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: Annonce
+  /annonce/{id}/question/{questionId}/answer:
+    put:
+      tags:
+      - annonce
+      summary: Répondre à une question sur une annonce
+      description: Répond à une question sur une annonce
+      operationId: answerQuestion
+      parameters:
+      - name: id
+        in: path
+        description: ID de l'annonce sur laquelle répondre à la question
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: questionId
+        in: path
+        description: ID de la question à laquelle répondre
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      requestBody:
+        description: Réponse à la question
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/questionId_answer_body'
+        required: true
+      responses:
+        "200":
+          description: Succès. La réponse a été enregistrée avec succès.
+        "400":
+          description: Requête invalide. Veuillez vérifier vos paramètres de requête.
+        "401":
+          description: Authentification requise.
+        "403":
+          description: Accès interdit. L'utilisateur n'est pas autorisé à accéder
+            à cette ressource.
+        "404":
+          description: Non trouvé. Aucune annonce n'a été trouvée.
+        "500":
+          description: Erreur serveur interne. Veuillez réessayer plus tard.
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: Annonce
+  /user:
+    post:
+      tags:
+      - user
+      summary: Créer un nouvel utilisateur
+      description: Crée un nouvel utilisateur
+      operationId: createUser
+      requestBody:
+        description: Utilisateur à créer
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        "200":
+          description: Opération réussie
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        "400":
+          description: Erreur de saisie. Veuillez vérifier vos informations d'identification.
+        "409":
+          description: Conflit. L'utilisateur existe déjà.
+        "500":
+          description: Erreur serveur interne. Veuillez réessayer plus tard.
+      x-swagger-router-controller: User
+  /user/login:
+    post:
+      tags:
+      - user
+      summary: Authentifier un utilisateur
+      description: ""
+      operationId: loginUser
+      requestBody:
+        description: Les informations d'identification de l'utilisateur
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/user_login_body'
+      responses:
+        "200":
+          description: Succès. L'utilisateur est authentifié avec succès.
+          headers:
+            X-Rate-Limit:
+              description: nombre de requêtes autorisées par minute
+              style: simple
+              explode: false
+              schema:
+                type: integer
+                format: int32
+            X-Expires-After:
+              description: date et heure d'expiration du jeton (format UTC)
+              style: simple
+              explode: false
+              schema:
+                type: string
+                format: date-time
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200'
+        "400":
+          description: Erreur de saisie. Veuillez vérifier vos informations d'identification.
+        "404":
+          description: Non trouvé. L'utilisateur avec le nom d'utilisateur spécifié
+            n'a pas été trouvé.
+        "500":
+          description: Erreur serveur interne. Veuillez réessayer plus tard.
+      x-swagger-router-controller: User
+  /user/logout:
+    post:
+      tags:
+      - user
+      summary: Déconnecter un utilisateur
+      description: ""
+      operationId: logoutUser
+      responses:
+        "200":
+          description: Opération réussie
+        "401":
+          description: Authentification requise.
+        "403":
+          description: Accès interdit. L'utilisateur n'est pas autorisé à accéder
+            à cette ressource.
+        "404":
+          description: Non trouvé. L'utilisateur avec le nom d'utilisateur spécifié
+            n'a pas été trouvé.
+        "500":
+          description: Erreur serveur interne. Veuillez réessayer plus tard.
+      security:
+      - bearerAuth: []
+      x-swagger-router-controller: User
+components:
+  schemas:
+    annonce:
+      required:
+      - availabilityDate
+      - description
+      - price
+      - propertyStatus
+      - propertyType
+      - publicationStatus
+      - title
+      type: object
+      properties:
+        title:
+          type: string
+          example: Maison à vendre
+        propertyType:
+          type: string
+          example: À la vente
+          enum:
+          - À la vente
+          - À la location
+        publicationStatus:
+          type: string
+          example: Publiée
+          enum:
+          - Publiée
+          - Non publiée
+        propertyStatus:
+          type: string
+          example: Disponible
+          enum:
+          - Disponible
+          - Loué
+          - Vendu
+        description:
+          type: string
+          example: Maison à vendre
+        price:
+          minimum: 0
+          type: number
+          example: 100000
+        availabilityDate:
+          type: string
+          format: date-time
+          example: 2023-12-25T14:30:00Z
+        photos:
+          type: array
+          description: Sélectionnez un ou plusieurs fichiers image.
+          items:
+            type: string
+            format: binary
+      example:
+        publicationStatus: Publiée
+        propertyStatus: Disponible
+        price: 100000
+        propertyType: À la vente
+        description: Maison à vendre
+        availabilityDate: 2023-12-25T14:30:00Z
+        title: Maison à vendre
+        photos:
+        - ""
+        - ""
+    annoncesList:
+      type: array
+      items:
+        $ref: '#/components/schemas/annonce'
+    askQuestion:
+      required:
+      - question
+      type: object
+      properties:
+        question:
+          type: string
+          example: Question
+    User:
+      required:
+      - isAgent
+      - password
+      - username
+      type: object
+      properties:
+        username:
+          type: string
+          example: theUser
+        password:
+          type: string
+          example: "12345"
+        isAgent:
+          type: boolean
+          example: true
+      example:
+        password: "12345"
+        username: theUser
+        isAgent: true
+      xml:
+        name: user
+    Tag:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+      example:
+        name: name
+        id: 0
+      xml:
+        name: tag
+    ApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        type:
+          type: string
+        message:
+          type: string
+      example:
+        code: 0
+        type: type
+        message: message
+      xml:
+        name: '##default'
+    id_photos_body:
+      type: object
+      properties:
+        photos:
+          type: array
+          description: Sélectionnez un ou plusieurs fichiers image.
+          items:
+            type: string
+            format: binary
+    questionId_answer_body:
+      type: object
+      properties:
+        answer:
+          type: string
+          example: Réponse
+    user_login_body:
+      required:
+      - password
+      - username
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+    inline_response_200:
+      type: object
+      properties:
+        token:
+          type: string
+      example:
+        token: token
+  requestBodies:
+    UserArray:
+      description: Liste des utilisateurs
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/User'
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
